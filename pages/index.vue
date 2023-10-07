@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-gray-300"
+    class="bg-gray-500"
     style="
       height: 70px;
       display: flex;
@@ -8,13 +8,15 @@
       align-items: center;
       margin-bottom: 20px;
     ">
-    <h1>Welcome to the gallery of dogs.</h1>
+    <h1 style="font-size: 24px; color: white">
+      Welcome to the gallery of dogs.
+    </h1>
   </header>
   <div class="container mx-auto">
     <div class="flex justify-center mb-5">
       <Listbox as="div" v-model="selected">
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900"
-          >Select Dog breed</ListboxLabel
+          >Select dog breed</ListboxLabel
         >
         <div class="relative">
           <ListboxButton
