@@ -22,7 +22,7 @@
           class="absolute right-0 left-1/2 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none -translate-x-1/2">
           <div class="py-1">
             <MenuItem
-              v-for="(menuItem, index) in menuItems"
+              v-for="(dogs, index) in dogsList"
               :key="index"
               v-slot="{ active }">
               <a
@@ -30,7 +30,7 @@
                   active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                   'block px-4 py-2 text-sm',
                 ]"
-                >{{ menuItem.label }}</a
+                >{{ dogs }}</a
               >
             </MenuItem>
           </div>
@@ -71,13 +71,6 @@ const imageUrls = ref("");
 const imageUrlsArray = ref([]);
 const dogsList = ref([]);
 
-const menuItems = ref([
-  { label: "Account settings" },
-  { label: "Support" },
-  { label: "License" },
-  { label: "Sign out" },
-]);
-
 async function fetchDogsList() {
   const response = await fetch("https://dog.ceo/api/breeds/list/all");
   const data = await response.json();
@@ -90,5 +83,6 @@ async function fetchDogs() {
   const data = await response.json();
   imageUrls.value = data.message;
   imageUrlsArray.value = data.message;
+  console.log("imageUrlsArray", imageUrlsArray.value);
 }
 </script>
