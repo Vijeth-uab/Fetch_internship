@@ -1,55 +1,54 @@
 <template>
   <div class="container mx-auto px-5 py-2 lg:px-5 lg:pt-12">
-    <Menu as="div" class="relative inline-block text-center">
-      <div>
-        <MenuButton
-          class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-          Dogs List
-          <ChevronDownIcon
-            class="-mr-1 h-5 w-5 text-gray-400"
-            aria-hidden="true" />
-        </MenuButton>
-      </div>
+    <div class="flex justify-center mb-10">
+      <Listbox as="div" v-model="selected">
+        <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900">Select Dog breed</ListboxLabel>
+        <div class="relative mt-2">
+          <ListboxButton
+            class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-4 pr-40 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+            <span class="inline-flex w-full truncate">
+              <!-- <span class="truncate">{{ selected }}</span> -->
+              <span class="ml-2 truncate text-gray-500">{{ selected.name }}</span>
+            </span>
+            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </span>
+          </ListboxButton>
 
-      <transition
-        enter-active-class="transition ease-out duration-100"
-        enter-from-class="transform opacity-0 scale-95 translate-x-1/2"
-        enter-to-class="transform opacity-100 scale-100 translate-x-0"
-        leave-active-class="transition ease-in duration-75"
-        leave-from-class="transform opacity-100 scale-100 translate-x-0"
-        leave-to-class="transform opacity-0 scale-95 translate-x-1/2">
-        <MenuItems
-          class="absolute right-0 left-1/2 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none -translate-x-1/2">
-          <div class="py-1">
-            <MenuItem
-              v-for="(dogs, index) in dogsList"
-              :key="index"
-              v-slot="{ active }">
-              <a
-                :class="[
-                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                  'block px-4 py-2 text-sm',
-                ]"
-                >{{ dogs }}</a
-              >
-            </MenuItem>
-          </div>
-        </MenuItems>
-      </transition>
-    </Menu>
+          <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <ListboxOptions
+              class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              <ListboxOption as="template" v-for="person in dogsList" :key="person.name" :value="person"
+                v-slot="{ active, selected }">
+                <li
+                  :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']"
+                  @click="fetchDogs">
+                  <div class="flex">
+                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']">{{ person.name }}</span>
+                    <!-- <span :class="[active ? 'text-indigo-200' : 'text-gray-500', 'ml-2 truncate']">{{ person.username }}</span> -->
+                  </div>
 
-    <div class="-m-1 flex flex-wrap md:-m-2">
-      <div
-        class="flex w-1/4 flex-wrap"
-        v-for="(imageUrl, index) in imageUrlsArray"
-        :key="index">
+                  <span v-if="selected"
+                    :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                  </span>
+                </li>
+              </ListboxOption>
+            </ListboxOptions>
+          </transition>
+        </div>
+      </Listbox>
+    </div>
+
+    <div class="flex justify-center mb-10 capitalize">
+      <h1>following images are from <span class="font-mono text-xl">{{ selected.name }}</span></h1>
+    </div>
+    <div class="-m-1 flex flex-wrap  mt-10 md:-m-2">
+      <div class="flex w-1/4 flex-wrap" v-for="(imageUrl, index) in imageUrlsArray" :key="index">
         <div class="w-full p-1 md:p-2">
-          <img
-            alt="gallery"
-            class="block h-full w-full rounded-lg object-cover object-center"
-            :src="imageUrl"
-            max-width="200"
-            max-height="200" />
+          <img alt="gallery" class="block h-full w-full rounded-lg object-cover object-center" :src="imageUrl"
+            max-width="200" max-height="200" />
         </div>
       </div>
     </div>
@@ -57,10 +56,10 @@
 </template>
 
 <script setup>
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import { ChevronDownIcon } from "@heroicons/vue/20/solid";
-
 import { onMounted, ref } from "vue";
+import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
+
 
 onMounted(() => {
   fetchDogsList();
@@ -71,18 +70,40 @@ const imageUrls = ref("");
 const imageUrlsArray = ref([]);
 const dogsList = ref([]);
 
+const selected = ref({ name: 'airedale', username: '@affenpinscher' })
+
 async function fetchDogsList() {
   const response = await fetch("https://dog.ceo/api/breeds/list/all");
   const data = await response.json();
-  dogsList.value = Object.keys(data.message);
-  console.log("DogsList", dogsList.value);
+  const dataObject = Object.keys(data.message);
+  dogsList.value = Object.keys(data.message).map(breed => {
+    const name = breed; // Capitalize the breed name
+    const username = `@${breed}`; // Create a username based on the breed name
+    return { name, username };
+  });
+
+  console.log(dogsList.value[0])
+
 }
 
 async function fetchDogs() {
-  const response = await fetch("https://dog.ceo/api/breed/hound/images");
-  const data = await response.json();
-  imageUrls.value = data.message;
-  imageUrlsArray.value = data.message;
-  console.log("imageUrlsArray", imageUrlsArray.value);
+  await fetch(`https://dog.ceo/api/breed/${selected.value.name}/images/random/20`)
+    .then(response => {
+      if (response.status === 301) {
+        const newURL = response.headers.get('Location');
+        // Make future requests to newURL if necessary
+        return fetch(newURL);
+      } else {
+        return response.json(); // Convert the response to JSON
+      }
+    })
+    .then(jsonData => {
+      console.log("jsonData.message", jsonData.message)
+      imageUrls.value = jsonData.message;
+      imageUrlsArray.value = jsonData.message;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 </script>
