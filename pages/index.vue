@@ -41,7 +41,9 @@
       </Listbox>
     </div>
 
-
+    <div class="flex justify-center mb-10 capitalize">
+      <h1>following images are from <span class="font-mono text-xl">{{ selected.name }}</span></h1>
+    </div>
     <div class="-m-1 flex flex-wrap  mt-10 md:-m-2">
       <div class="flex w-1/4 flex-wrap" v-for="(imageUrl, index) in imageUrlsArray" :key="index">
         <div class="w-full p-1 md:p-2">
